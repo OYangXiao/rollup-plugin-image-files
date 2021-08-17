@@ -12,14 +12,15 @@ export default function image(options = {}) {
 	let images = [];
 
 	function generateBundle(outputOptions, rendered) {
-
-		const dir = outputOptions.dir
-			? resolve(outputOptions.dir, assetPath)
-			: dirname(outputOptions.dest || outputOptions.file);
+		const dir = resolve(
+			outputOptions.dir || dirname(outputOptions.dest || outputOptions.file),
+			assetPath
+		);
 
 		if (!existsSync(dir)) {
 			mkdirSync(dir, { recursive: true });
 		}
+
 		images.forEach(id => {
 			writeFileSync(resolve(dir, basename(id)), readFileSync(id));
 		});
@@ -35,9 +36,10 @@ export default function image(options = {}) {
 			if (images.indexOf(id) < 0) {
 				images.push(id);
 			}
-			return `const img = require('./${assetPath}${basename(
-				id
-			)}'); export default img;`;
+
+			return `const img = require('${('./' + assetPath + basename(id))
+				.replace(/\/+/g, '/')
+				.replace(/\/\.\//g, '/')}'); export default img;`;
 		},
 		generateBundle,
 		ongenerate: generateBundle
